@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sustainable Aviation Fuel for the Philippines · Billriz Condor</title>
+  <meta name="description" content="Interactive calculator for the energy, land and investment needed to run Philippine aviation on DAC-based e-kerosene.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%231f5f4a'/><text x='16' y='22' font-family='Georgia,serif' font-size='17' font-weight='700' fill='%23f4efe4' text-anchor='middle'>BC</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/demo.css">
+  <style>
+    .flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; margin-top: 8px; }
+    .flow .node { flex: 1 1 140px; background: var(--accent-soft); border-radius: 12px; padding: 12px 14px; font-size: 14px; }
+    .flow .node b { display: block; font-size: 15px; }
+    .flow .node span { color: var(--muted); font-size: 13px; }
+    .flow .arrow { align-self: center; color: var(--faint); font-size: 20px; }
+    .land { display: flex; gap: 28px; align-items: flex-end; flex-wrap: wrap; margin-top: 16px; }
+    .land figure { margin: 0; display: flex; flex-direction: column; gap: 8px; }
+    .land .sq { border-radius: 4px; }
+    .land figcaption { font-size: 13px; color: var(--muted); max-width: 240px; }
+    .land figcaption b { color: var(--ink); display: block; font-size: 15px; }
+    .calc { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 24px; }
+    @media (max-width: 820px) { .calc { grid-template-columns: 1fr; } }
+    .calc .controls { flex-direction: column; align-items: stretch; margin: 0; }
+    .calc .control { min-width: 0; }
+    .kv { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .kv .stat .value { font-size: 24px; }
+    .reset { font: inherit; font-size: 13px; background: none; border: 0; color: var(--accent); cursor: pointer; padding: 0; text-align: left; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap">
+      <a href="https://billrizecondor.github.io/">← Billriz Condor · Portfolio</a>
+      <div class="right">
+        <a class="hide-sm" href="https://github.com/billrizecondor/saf_projects_me3">Source on GitHub</a>
+        <button class="theme-btn" type="button" aria-label="Toggle dark mode">◐</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap hero">
+      <p class="eyebrow">Energy storage · e-fuels · techno-economics</p>
+      <h1>What would it take to fly the Philippines on e-kerosene?</h1>
+      <p class="lede">Batteries are too heavy for most flights, so aviation needs drop-in liquid fuels. This study sizes the solar or wind capacity, land and investment needed to replace all Philippine jet fuel with <b>e-kerosene</b>. The fuel is made from CO₂ captured directly from the air (DAC) and hydrogen from renewable electricity.</p>
+      <div class="meta"><span><b>Author</b> Billriz Condor</span><span><b>Course</b> Energy Storage, BME 2025</span></div>
+      <div class="btns">
+        <a class="btn primary" href="#calculator">Try the calculator</a>
+        <a class="btn" href="https://github.com/billrizecondor/saf_projects_me3/blob/main/Energy%20Storage%20Paper%20-%20Condor.pdf">Read the paper (PDF)</a>
+        <a class="btn" href="#code">See the code</a>
+      </div>
+    </div>
+
+    <div class="wrap"><div class="stats" id="heroStats"></div></div>
+
+    <section>
+      <div class="wrap">
+        <div class="sec-head"><h2>The production pathway</h2><p>Power-to-liquid e-kerosene with CO₂ from direct air capture, the configuration assumed in the study (Seymour et al., 2024).</p></div>
+        <div class="card">
+          <div class="flow">
+            <div class="node"><b>☀️ Solar or 🌬️ wind</b><span>Renewable electricity</span></div>
+            <div class="arrow" aria-hidden="true">→</div>
+            <div class="node"><b>Electrolysis + DAC</b><span>Green H₂ and CO₂ captured from the air</span></div>
+            <div class="arrow" aria-hidden="true">→</div>
+            <div class="node"><b>Fischer–Tropsch</b><span>(2n+1) H₂ + n CO → CₙH₂ₙ₊₂ + n H₂O</span></div>
+            <div class="arrow" aria-hidden="true">→</div>
+            <div class="node"><b>✈️ e-kerosene</b><span>40% of the e-fuel blend · 10.1 kWh per litre</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="calculator">
+      <div class="wrap">
+        <div class="sec-head"><h2>Calculator</h2><p>Change the assumptions and every result on this page updates. The defaults are the values used in the paper.</p></div>
+        <div class="card">
+          <div class="calc">
+            <div>
+              <div class="controls">
+                <label class="control">Jet fuel demand <output id="o-demand"></output>
+                  <input type="range" id="demand" min="10000" max="70000" step="500"></label>
+                <label class="control">Energy to make 1 L of e-kerosene <output id="o-energy"></output>
+                  <input type="range" id="energy" min="6" max="16" step="0.02"></label>
+                <label class="control">Solar capacity factor <output id="o-cfs"></output>
+                  <input type="range" id="cfs" min="0.12" max="0.30" step="0.01"></label>
+                <label class="control">Wind capacity factor <output id="o-cfw"></output>
+                  <input type="range" id="cfw" min="0.20" max="0.50" step="0.01"></label>
+                <div class="control">Technology cost year
+                  <div class="seg" role="group" aria-label="Cost year">
+                    <button type="button" data-year="2030" aria-pressed="true">2030</button>
+                    <button type="button" data-year="2050" aria-pressed="false">2050</button>
+                  </div>
+                </div>
+                <button type="button" class="reset" id="reset">↺ Reset to paper values</button>
+              </div>
+            </div>
+            <div class="kv" id="calcStats"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="grid2">
+          <div class="card">
+            <h3>New capacity needed compared with national targets</h3>
+            <p class="note">Gigawatts of installed renewable capacity</p>
+            <div class="chart-box"><canvas id="capChart" aria-label="Bar chart comparing capacity needed for SAF with Philippine renewable targets"></canvas></div>
+          </div>
+          <div class="card">
+            <h3>Investment by route</h3>
+            <p class="note">Up-front CAPEX in billions of euros (2025 prices)</p>
+            <div class="legend" id="capexLegend"></div>
+            <div class="chart-box"><canvas id="capexChart" aria-label="Stacked column chart of CAPEX for solar and wind routes in 2030 and 2050"></canvas></div>
+            <details><summary>View as table</summary><div class="table-wrap" id="capexTable"></div></details>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="sec-head"><h2>The land footprint</h2><p>The squares are drawn to scale by area. Wind turbines need wide spacing, so wind needs far more land than solar even though it needs fewer megawatts. Much of that land can still be farmed between turbines.</p></div>
+        <div class="card"><div class="land" id="land"></div></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="sec-head"><h2>Key findings</h2></div>
+        <div class="findings">
+          <div class="finding"><b>€4.8–7.9 billion up front</b><span>is the 2030-cost CAPEX to switch all current jet fuel to e-kerosene, falling to €3.4–6.0 billion with 2050 technology prices.</span></div>
+          <div class="finding"><b>28–42% more renewables</b><span>on top of the country's 20 GW goal for 2040 would be needed to power fuel production alone.</span></div>
+          <div class="finding"><b>Solar uses about 5% of wind's land</b><span>but needs 18–23 million panels. Land use has to be planned carefully either way.</span></div>
+          <div class="finding"><b>Cost is the deciding factor</b><span>Plant CAPEX drives the final fuel price, so falling DAC and renewable costs are critical for this pathway to work.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <div class="sec-head"><h2>Data &amp; assumptions</h2></div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Parameter</th><th class="num">Value</th><th>Unit</th><th>Source</th></tr></thead>
+              <tbody>
+                <tr><td>Aviation fuel demand (PH)</td><td class="num">33,700</td><td>barrels/day</td><td>TheGlobalEconomy.com</td></tr>
+                <tr><td>Energy to produce e-fuel blend</td><td class="num">25.2</td><td>kWh/L</td><td>Seymour et al. (2024)</td></tr>
+                <tr><td>e-kerosene fraction of blend</td><td class="num">0.4</td><td>L/L</td><td>Seymour et al. (2024)</td></tr>
+                <tr><td>Capacity factor: solar / wind</td><td class="num">0.20 / 0.30</td><td>–</td><td>AboitizPower</td></tr>
+                <tr><td>Renewable capacity: today / 2030 / 2040 goal</td><td class="num">8.4 / 15.3 / 20</td><td>GW</td><td>Energy Tracker Asia</td></tr>
+                <tr><td>Solar power density</td><td class="num">0.87</td><td>MW/ha</td><td>Bolinger et al. (2022)</td></tr>
+                <tr><td>Wind land footprint</td><td class="num">34</td><td>ha/MW</td><td>NREL</td></tr>
+                <tr><td>Solar PV CAPEX 2030 / 2050</td><td class="num">430 / 330</td><td>€/kW</td><td>Sens et al. (2022)</td></tr>
+                <tr><td>Onshore wind CAPEX 2030 / 2050</td><td class="num">1,210 / 970</td><td>€/kW</td><td>Sens et al. (2022)</td></tr>
+                <tr><td>E-fuel plant CAPEX 2030 / 2050</td><td class="num">0.85 / 0.45</td><td>€ per L/year</td><td>Lilley et al.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="code">
+      <div class="wrap">
+        <div class="sec-head"><h2>How it's calculated</h2><p>This Python model is a line-by-line version of the project spreadsheet. It checks its results against <code>SAF Calculations.xlsx</code> and writes the default values this page uses. The calculator above runs the same equations in JavaScript.</p></div>
+        <div class="card">
+          <div class="code-head"><code>analysis/saf_model.py</code><a href="https://github.com/billrizecondor/saf_projects_me3/blob/main/analysis/saf_model.py">Open on GitHub →</a></div>
+          <div class="code"><pre id="codeView">Loading…</pre></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <p>© Billriz Condor · Sources: Seymour et al. (2024), Sens et al. (2022), Bolinger et al. (2022), NREL, Grim et al. (2022).</p>
+      <p><a href="https://billrizecondor.github.io/">Back to portfolio</a></p>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="assets/demo.js"></script>
+  <script>
+  (async function () {
+    const { chart, fmt, axes, css } = Demo;
+    const base = (await (await fetch('data/saf_model.json')).json()).inputs;
+    const TARGETS = { today: 8.4, goal2030: 15.3, goal2040: base.re_goal_2040_gw };
+    const METRO_MANILA_KM2 = 619.57;
+
+    const state = {};
+    function resetState() {
+      Object.assign(state, {
+        demand: base.jet_fuel_bbl_per_day,
+        energy: base.efuel_blend_kwh_per_litre * base.kerosene_fraction,
+        cfs: base.capacity_factor_solar,
+        cfw: base.capacity_factor_wind,
+        year: 2030,
+      });
+    }
+
+    // Same equations as analysis/saf_model.py
+    function run() {
+      const lph = state.demand * base.litres_per_hour_per_bbl_day;
+      const powerMw = state.energy * lph / 1000;
+      const solarMw = powerMw / state.cfs, windMw = powerMw / state.cfw;
+      const lpy = lph * 8760;
+      const capex = {};
+      [2030, 2050].forEach((y) => {
+        const plant = base.efuel_plant_capex_eur_per_litre[y] * lpy;
+        const solar = solarMw * 1000 * base.solar_capex_eur_per_kw[y];
+        const wind = windMw * 1000 * base.wind_capex_eur_per_kw[y];
+        capex[y] = { plant, solar, wind, opex: plant * base.efuel_opex_share };
+      });
+      return {
+        powerMw, solarMw, windMw, capex,
+        landSolar: solarMw / base.solar_mw_per_ha, landWind: windMw * base.wind_ha_per_mw,
+        panels: base.panels_per_mw.map((n) => solarMw * n),
+        turbines: [windMw / base.turbine_mw[1], windMw / base.turbine_mw[0]],
+      };
+    }
+
+    // ---- hero tiles (paper defaults, fixed)
+    resetState();
+    const r0 = run();
+    document.getElementById('heroStats').innerHTML = [
+      ['Fuel to replace', fmt.int(state.demand * base.litres_per_hour_per_bbl_day) + ' L/h', '33,700 barrels of jet fuel per day'],
+      ['Continuous power needed', fmt.dec(r0.powerMw / 1000, 2) + ' GW', 'for e-kerosene production'],
+      ['Investment (2030 prices)', fmt.eurB(r0.capex[2030].solar + r0.capex[2030].plant) + '–' + fmt.eurB(r0.capex[2030].wind + r0.capex[2030].plant).slice(1), 'solar route to wind route'],
+      ['Land for solar vs wind', fmt.compact(r0.landSolar) + ' / ' + fmt.compact(r0.landWind) + ' ha', 'solar needs about 5% of wind’s land'],
+    ].map(([l, v, s]) => `<div class="stat"><div class="label">${l}</div><div class="value">${v}</div><div class="sub">${s}</div></div>`).join('');
+
+    // ---- controls
+    const ctl = {
+      demand: [(v) => fmt.int(v) + ' bbl/day'],
+      energy: [(v) => fmt.dec(+v, 2) + ' kWh/L'],
+      cfs: [(v) => fmt.pct(+v)],
+      cfw: [(v) => fmt.pct(+v)],
+    };
+    function syncInputs() {
+      Object.keys(ctl).forEach((k) => {
+        const el = document.getElementById(k);
+        el.value = state[k];
+        document.getElementById('o-' + k).textContent = ctl[k][0](state[k]);
+      });
+      document.querySelectorAll('.seg button').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.year === state.year)));
+    }
+    Object.keys(ctl).forEach((k) => document.getElementById(k).addEventListener('input', (e) => { state[k] = +e.target.value; refresh(); }));
+    document.querySelectorAll('.seg button').forEach((b) => b.addEventListener('click', () => { state.year = +b.dataset.year; refresh(); }));
+    document.getElementById('reset').addEventListener('click', () => { resetState(); refresh(); });
+
+    // ---- charts
+    const capChart = chart('capChart', ({ series }) => {
+      const r = run();
+      const labels = ['Installed today', '2030 goal', '2040 goal', 'For SAF: solar route', 'For SAF: wind route'];
+      const vals = [TARGETS.today, TARGETS.goal2030, TARGETS.goal2040, r.solarMw / 1000, r.windMw / 1000];
+      const colors = [css('--faint'), css('--faint'), css('--faint'), series[0], series[1]];
+      return {
+        type: 'bar',
+        data: { labels, datasets: [{ data: vals, backgroundColor: colors, borderRadius: { topRight: 4, bottomRight: 4 }, borderSkipped: false, maxBarThickness: 24 }] },
+        options: {
+          indexAxis: 'y',
+          layout: { padding: { right: 56 } },
+          scales: axes({ x: { min: 0, grid: { color: css('--grid'), drawTicks: false }, border: { display: false }, ticks: { callback: (v) => v + ' GW' } }, y: { grid: { display: false }, border: { color: css('--line') } } }),
+          plugins: { tooltip: { callbacks: { label: (c) => ` ${fmt.dec(c.raw)} GW` + (c.dataIndex > 2 ? ` · ${fmt.pct(c.raw / TARGETS.goal2040)} of the 2040 goal` : '') } } },
+        },
+        plugins: [{ id: 'endLabels', afterDatasetsDraw(ch) {
+          const { ctx } = ch; const meta = ch.getDatasetMeta(0);
+          ctx.save(); ctx.font = '600 12px Inter, system-ui, sans-serif'; ctx.fillStyle = css('--ink'); ctx.textBaseline = 'middle';
+          meta.data.forEach((bar, i) => ctx.fillText(fmt.dec(ch.data.datasets[0].data[i]) + ' GW', bar.x + 6, bar.y));
+          ctx.restore();
+        } }],
+      };
+    });
+
+    const capexChart = chart('capexChart', ({ series }) => {
+      const r = run();
+      const cols = [['Solar · 2030', 'solar', 2030], ['Wind · 2030', 'wind', 2030], ['Solar · 2050', 'solar', 2050], ['Wind · 2050', 'wind', 2050]];
+      const mk = (label, get, color, top) => ({
+        label, data: cols.map(get), backgroundColor: color, maxBarThickness: 24,
+        borderColor: css('--surface'), borderWidth: { top: 2, bottom: 0, left: 0, right: 0 }, borderSkipped: false,
+        borderRadius: top ? { topLeft: 4, topRight: 4 } : 0,
+      });
+      return {
+        type: 'bar',
+        data: {
+          labels: cols.map((c) => c[0]),
+          datasets: [
+            mk('Power plants (solar or wind)', ([, k, y]) => r.capex[y][k] / 1e9, series[2], false),
+            mk('E-fuel plant (DAC, electrolysis, synthesis)', ([, , y]) => r.capex[y].plant / 1e9, series[3], true),
+          ],
+        },
+        options: {
+          scales: axes({ x: { stacked: true }, y: { stacked: true, min: 0, ticks: { callback: (v) => '€' + v + 'B' } } }),
+          plugins: { tooltip: { callbacks: {
+            label: (c) => ` ${c.dataset.label}: €${fmt.dec(c.raw)}B`,
+            footer: (it) => 'Total: €' + fmt.dec(it.reduce((a, b) => a + b.raw, 0)) + 'B',
+          } } },
+        },
+      };
+    });
+
+    function drawLegend() {
+      const s = Demo.series();
+      document.getElementById('capexLegend').innerHTML =
+        [['Power plants (solar or wind)', s[2]], ['E-fuel plant (DAC, electrolysis, synthesis)', s[3]]].map(([l, c]) => `<span><i style="background:${c}"></i>${l}</span>`).join('');
+    }
+    document.addEventListener('themechange', () => { drawLegend(); drawLand(run()); });
+
+    function drawLand(r) {
+      const maxPx = Math.min(260, document.getElementById('land').clientWidth - 20);
+      const km2 = { solar: r.landSolar / 100, wind: r.landWind / 100, mm: METRO_MANILA_KM2 };
+      const biggest = Math.max(km2.solar, km2.wind, km2.mm);
+      const side = (a) => Math.max(3, Math.sqrt(a / biggest) * maxPx);
+      const s = Demo.series();
+      const fig = (a, color, title, sub, dashed) => `<figure><div class="sq" style="width:${side(a)}px;height:${side(a)}px;${dashed ? `border:1.5px dashed ${css('--faint')}` : `background:${color}`}"></div><figcaption><b>${title}</b>${sub}</figcaption></figure>`;
+      document.getElementById('land').innerHTML =
+        fig(km2.solar, s[0], fmt.int(r.landSolar) + ' ha', `Solar route · ${fmt.int(km2.solar)} km² · ${fmt.compact(r.panels[0])}–${fmt.compact(r.panels[1])} panels`) +
+        fig(km2.wind, s[1], fmt.int(r.landWind) + ' ha', `Wind route · ${fmt.int(km2.wind)} km² · ${fmt.int(r.turbines[0])}–${fmt.int(r.turbines[1])} turbines`) +
+        fig(km2.mm, null, fmt.int(km2.mm) + ' km²', 'Metro Manila, for scale', true);
+    }
+
+    function refresh() {
+      syncInputs();
+      const r = run(), c = r.capex[state.year];
+      document.getElementById('calcStats').innerHTML = [
+        ['Continuous power', fmt.int(r.powerMw) + ' MW', fmt.dec(state.energy, 2) + ' kWh per litre'],
+        ['Solar or wind capacity', fmt.compact(r.solarMw) + ' / ' + fmt.compact(r.windMw) + ' MW', fmt.pct(r.solarMw / 20000) + ' / ' + fmt.pct(r.windMw / 20000) + ' of the 2040 goal'],
+        ['CAPEX, solar route', fmt.eurB(c.solar + c.plant), state.year + ' technology prices'],
+        ['CAPEX, wind route', fmt.eurB(c.wind + c.plant), state.year + ' technology prices'],
+        ['E-fuel plant OPEX', fmt.eurM(c.opex) + '/yr', 'about 20% of plant CAPEX'],
+        ['Land, solar vs wind', fmt.compact(r.landSolar) + ' / ' + fmt.compact(r.landWind) + ' ha', fmt.pct(r.landSolar / r.landWind) + ' of wind’s footprint'],
+      ].map(([l, v, s]) => `<div class="stat"><div class="label">${l}</div><div class="value">${v}</div><div class="sub">${s}</div></div>`).join('');
+      document.getElementById('capexTable').innerHTML = '<table><thead><tr><th>Route</th><th class="num">Power plants</th><th class="num">E-fuel plant</th><th class="num">Total</th></tr></thead><tbody>' +
+        [2030, 2050].flatMap((y) => ['solar', 'wind'].map((k) => `<tr><td>${k === 'solar' ? 'Solar' : 'Wind'} · ${y}</td><td class="num">${fmt.eurB(r.capex[y][k])}</td><td class="num">${fmt.eurB(r.capex[y].plant)}</td><td class="num"><b>${fmt.eurB(r.capex[y][k] + r.capex[y].plant)}</b></td></tr>`)).join('') + '</tbody></table>';
+      capChart.update(); capexChart.update(); drawLand(r);
+    }
+    drawLegend();
+    refresh();
+    addEventListener('resize', () => drawLand(run()));
+
+    Demo.loadCode('codeView', 'saf_projects_me3', 'analysis/saf_model.py');
+  })();
+  </script>
+</body>
+</html>

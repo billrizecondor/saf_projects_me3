@@ -1,0 +1,75 @@
+{
+ "inputs": {
+  "jet_fuel_bbl_per_day": 33700,
+  "litres_per_hour_per_bbl_day": 4.9,
+  "efuel_blend_kwh_per_litre": 25.2,
+  "kerosene_fraction": 0.4,
+  "capacity_factor_solar": 0.2,
+  "capacity_factor_wind": 0.3,
+  "re_goal_2040_gw": 20.0,
+  "solar_mw_per_ha": 0.87,
+  "wind_ha_per_mw": 34.0,
+  "panels_per_mw": [
+   2200,
+   2800
+  ],
+  "turbine_mw": [
+   2.0,
+   3.0
+  ],
+  "solar_capex_eur_per_kw": {
+   "2030": 430,
+   "2050": 330
+  },
+  "wind_capex_eur_per_kw": {
+   "2030": 1210,
+   "2050": 970
+  },
+  "efuel_plant_capex_eur_per_litre": {
+   "2030": 0.85,
+   "2050": 0.45
+  },
+  "efuel_opex_share": 0.195
+ },
+ "results": {
+  "energy_kwh_per_litre": 10.08,
+  "fuel_litres_per_hour": 165130.0,
+  "power_mw": 1664.5104,
+  "solar_mw": 8322.552,
+  "wind_mw": 5548.3679999999995,
+  "share_of_2040_goal": {
+   "solar": 0.4161276,
+   "wind": 0.27741839999999995
+  },
+  "land_ha": {
+   "solar": 9566.151724137932,
+   "wind": 188644.512
+  },
+  "solar_panels": [
+   18309614.4,
+   23303145.599999998
+  ],
+  "wind_turbines": [
+   1849.456,
+   2774.1839999999997
+  ],
+  "capex_eur": {
+   "2030": {
+    "solar_plants": 3578697360.0,
+    "wind_plants": 6713525279.999999,
+    "efuel_plant": 1229557980.0,
+    "efuel_opex_per_year": 239763806.1,
+    "total_solar_route": 4808255340.0,
+    "total_wind_route": 7943083259.999999
+   },
+   "2050": {
+    "solar_plants": 2746442160.0,
+    "wind_plants": 5381916959.999999,
+    "efuel_plant": 650942460.0,
+    "efuel_opex_per_year": 126933779.7,
+    "total_solar_route": 3397384620.0,
+    "total_wind_route": 6032859419.999999
+   }
+  }
+ }
+}
