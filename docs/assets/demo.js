@@ -11,7 +11,7 @@
   function applyDefaults() {
     if (!window.Chart) return;
     const C = window.Chart;
-    C.defaults.font.family = 'Inter, system-ui, -apple-system, "Segoe UI", sans-serif';
+    C.defaults.font.family = '"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif';
     C.defaults.font.size = 12;
     C.defaults.color = css('--muted');
     C.defaults.borderColor = css('--grid');
